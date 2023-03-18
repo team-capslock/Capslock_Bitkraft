@@ -10,4 +10,7 @@ urlpatterns = [
     path('api/dashboard', views.dashboard, name='dashboard'),
     path('api/add-product',add_product),
     path('api/get-product',get_product),  
+    path('api/get-location',get_location),  
+    path('api/add-hit',add_hit),  
+    path('api/get-user-level',get_user_level),  
 ]

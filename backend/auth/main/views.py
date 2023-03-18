@@ -31,6 +31,7 @@ def register(request):
 # Login API
 @api_view(['POST'])
 def signin(request):
+    print(request.data)
     serializer = LoginSerializer(data=request.data)
     try:
         serializer.is_valid(raise_exception=True)
