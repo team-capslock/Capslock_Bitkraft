@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from product.views import *
 app_name = 'main'
 urlpatterns = [
     path('api/register', views.register, name='register'),
@@ -8,5 +8,6 @@ urlpatterns = [
     path('api/send-otp', views.send_otp, name='send_otp'),
     path('api/verify-otp', views.verify_otp, name='verify_otp'),
     path('api/dashboard', views.dashboard, name='dashboard'),
-    
+    path('api/add-product',add_product),
+    path('api/get-product',get_product),  
 ]
