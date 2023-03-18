@@ -9,19 +9,23 @@ from .models import OTP
 from .decorators import serializer_validator, verified_user
 from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
-
+from store.views import *
 
 # Register API
 @api_view(['POST'])
 def register(request):
+    print(request.data)
     serializer = RegisterSerializer(data=request.data)
     try:
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({"user": UserSerializer(user).data})
+        store_data = create_store(request,user)
+        print("store_data:",store_data)
+        return Response({"user": UserSerializer(user).data,"store_data":store_data})
     except Exception as e:
         print("Errors : Register =  ",e)
-        message = list(serializer.errors.values())[0]
+        # message = list(serializer.errors.values())[0]
+        message = serializer.errors
         return Response({"message": message},status=status.HTTP_400_BAD_REQUEST)
     
 # Login API
