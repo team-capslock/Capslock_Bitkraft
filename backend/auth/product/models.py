@@ -6,7 +6,7 @@ from store.models import *
 class ProductDetail(models.Model):
     store = models.ForeignKey(StoreDetail,on_delete=models.CASCADE,null=True,blank=True)
     name = models.CharField(max_length=100,null=True,blank=True)
-    logo = models.ImageField(upload_to="store", blank=True, null=True) # company logo here
+    image_url = models.URLField(max_length=500,blank=True, null=True) # company logo here
     description = models.TextField(max_length=400,null=True,blank=True)
     price = models.CharField(max_length=100,null=True,blank=True)
     # category = models.CharField(max_length=100,null=True,blank=True)

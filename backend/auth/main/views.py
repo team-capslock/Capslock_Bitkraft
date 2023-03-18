@@ -19,6 +19,7 @@ def register(request):
     try:
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+       
         store_data = create_store(request,user)
         print("store_data:",store_data)
         return Response({"user": UserSerializer(user).data,"store_data":store_data})
@@ -31,6 +32,7 @@ def register(request):
 # Login API
 @api_view(['POST'])
 def signin(request):
+    print(request.data)
     serializer = LoginSerializer(data=request.data)
     try:
         serializer.is_valid(raise_exception=True)
