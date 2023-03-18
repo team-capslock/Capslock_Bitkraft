@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from rest_framework import status
 import requests
 from django.views.decorators.csrf import csrf_exempt
-
+import secrets
 @api_view(['POST'])
 def add_product(request):
     try:
@@ -84,17 +84,27 @@ def add_hit(request):
 @api_view(['POST'])
 def get_user_level(request):
     try:
+        api_key = ""
         web_url = request.data.get('url')
         queryset = StoreDetail.objects.filter(url=web_url)
         if len(queryset)>0:
-            if ProductDetail.objects.filter(store__url=web_url):
-                return JsonResponse({"val":2})
+            
+            product_queryset = ProductDetail.objects.filter(store__url=web_url)
+            if product_queryset:
+                api_key = product_queryset.last().store.api_key
+                print(api_key)
+                return JsonResponse({"val":2,"api_key":api_key},status=status.HTTP_200_OK)
             else:
-                return JsonResponse({"val":1})
+                return JsonResponse({"val":1,"api_key":api_key},status=status.HTTP_200_OK)
         else:
             return JsonResponse({"val":0})
 
     except Exception as e:
+        print("error:",e)
         return JsonResponse({"msg":"Error"},status=status.HTTP_400_BAD_REQUEST)
 
 
+# @api_view(['POST'])
+def create_api_key(request):
+    secret_key = secrets.token_hex(16)
+    return secret_key

@@ -19,6 +19,7 @@ def register(request):
     try:
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+       
         store_data = create_store(request,user)
         print("store_data:",store_data)
         return Response({"user": UserSerializer(user).data,"store_data":store_data})
