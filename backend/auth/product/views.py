@@ -7,25 +7,27 @@ from rest_framework import status
 import requests
 from django.views.decorators.csrf import csrf_exempt
 import secrets
+import json
+
 @api_view(['POST'])
 def add_product(request):
     try:
-        store_id = request.query_params.get('store_id')
+        store_url = request.data.get('store_url')
         print("request.data:",request.data)
-        for i in request.data:    
-            data = i 
-            i['store'] = store_id
-            serializers_data = ProductSerializer(data=i,many=True)
-            if serializers_data.is_valid():
-                serializers_data.save()
-                return JsonResponse({"data":serializers_data.data},status=status.HTTP_200_OK)
-            else:
-                return JsonResponse({"error":serializers_data.errors})
+        prod_list = json.loads(request.data.get('products'))
+        for i in prod_list:
+            try:
+                prod = ProductDetail.objects.get(name=i[0],store__url=store_url)
+            except:
+                prod = None
+            if not prod:
+                ProductDetail.objects.create(store=StoreDetail.objects.get(url=store_url),name=i[0],description=i[1],price=i[0],image_url=i[2]);
+        return JsonResponse({"message":"successful"},status=status.HTTP_200_OK)
+            
     except Exception as e:
         # message = serializers.errors 
         print("error",e)
         return JsonResponse({"message":"dd"},status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['GET'])
 def get_product(request):
@@ -37,16 +39,21 @@ def get_product(request):
 
 # def getUserInfo(request):
 # @api_view(['GET'])
+import requests
+def get_ip():
+    response = requests.get('https://api64.ipify.org?format=json').json()
+    return response["ip"]
+
 def get_location(request,ip):
-    # ip_address = get_ip()
-    ip = '103.220.42.201'
+    ip = get_ip();
     response = requests.get(f'https://ipapi.co/{ip}/json/').json()
     print("response:",response)
     location_data = {
-        "ip": ip,
+        "ip": response.get("ip"),
         "city": response.get("city"),
         "region": response.get("region"),
-        "country": response.get("country_name")
+        "country": response.get("country_name"),
+        "postal": response.get("postal")
     }
     # return JsonResponse({"location_data":location_data})
     return location_data
@@ -56,24 +63,35 @@ def get_location(request,ip):
 def add_hit(request):
     try:
         data = request.data
+        print(data)
         product_name = data.get('product_name')
         store_url = data.get('store_url')
-        product = ProductDetail.objects.get(name=product_name,store__url=store_url)
-        print("product:",product)   
-        if not product:
-            data['store'] = product.store
+        try:
+            print("store_url:",store_url)
+            product = ProductDetail.objects.filter(name=product_name,store__url=store_url)
+            print("product",product)
+        except Exception as e:
+            print(e)
+            product = None
+        print("product:",product.last())   
+        if product:
+            data['store'] = product.last().store.id
             # data['product'] = product_id
             ip = data.get('ip')
             location_data = get_location(request,ip)
+            data['ip'] = location_data['ip']
             data['city'] = location_data['city']
-            data['state'] = location_data['state']
+            data['state'] = location_data['region']
             data['country'] = location_data['country']
+            data['postal'] = location_data['postal']
             serializer = HitSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse({"msg":"New Hit Added Successfully"},status=status.HTTP_201_CREATED)
-        else:
-            data = ProductSerializer(product).data
+            else:
+                print(serializer.errors)
+                return JsonResponse({"message":"dd"},status=status.HTTP_400_BAD_REQUEST)
+            # data = ProductSerializer(product).data
             return JsonResponse({"data":data},status=status.HTTP_200_OK)
     except Exception as e:
         print("error",e)
@@ -86,13 +104,18 @@ def get_user_level(request):
     try:
         api_key = ""
         web_url = request.data.get('url')
-        queryset = StoreDetail.objects.filter(url=web_url)
-        if len(queryset)>0:
-            
-            product_queryset = ProductDetail.objects.filter(store__url=web_url)
+        l = len(web_url)
+        
+        web_url_sliced = web_url[:l-1]
+        
+        print("String : ",web_url_sliced)
+        print(web_url)
+        queryset = StoreDetail.objects.get(url=web_url_sliced)
+        if queryset:
+            product_queryset = ProductDetail.objects.filter(store__url=web_url_sliced)
             if product_queryset:
                 api_key = product_queryset.last().store.api_key
-                print(api_key)
+                print(api_key)  
                 return JsonResponse({"val":2,"api_key":api_key},status=status.HTTP_200_OK)
             else:
                 return JsonResponse({"val":1,"api_key":api_key},status=status.HTTP_200_OK)
@@ -108,3 +131,5 @@ def get_user_level(request):
 def create_api_key(request):
     secret_key = secrets.token_hex(16)
     return secret_key
+
+
