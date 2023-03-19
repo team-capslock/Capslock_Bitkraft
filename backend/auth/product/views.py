@@ -105,13 +105,18 @@ def get_user_level(request):
     try:
         api_key = ""
         web_url = request.data.get('url')
+        l = len(web_url)
+        
+        web_url_sliced = web_url[:l-1]
+        
+        print("String : ",web_url_sliced)
         print(web_url)
-        queryset = StoreDetail.objects.get(url=web_url)
+        queryset = StoreDetail.objects.get(url=web_url_sliced)
         if queryset:
-            product_queryset = ProductDetail.objects.filter(store__url=web_url)
+            product_queryset = ProductDetail.objects.filter(store__url=web_url_sliced)
             if product_queryset:
                 api_key = product_queryset.last().store.api_key
-                print(api_key)
+                print(api_key)  
                 return JsonResponse({"val":2,"api_key":api_key},status=status.HTTP_200_OK)
             else:
                 return JsonResponse({"val":1,"api_key":api_key},status=status.HTTP_200_OK)
