@@ -7,7 +7,7 @@ class StoreDetail(models.Model):
     address = models.TextField(max_length=400,null=True,blank=True)
     logo = models.URLField(max_length=500,null=True,blank=True)
     city = models.CharField(max_length=100,null=True,blank=True)
-    url = models.URLField(max_length=400,null=True,blank=True)
+    url = models.CharField(max_length=400,null=True,blank=True)
     state = models.CharField(max_length=100,null=True,blank=True)
     postal_code = models.CharField(max_length=100,null=True,blank=True)
     plugInstall = models.BooleanField(null=True,blank=True)
