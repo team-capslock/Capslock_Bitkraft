@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from product.views import *
+from store.views import *
 app_name = 'main'
 urlpatterns = [
     path('api/register', views.register, name='register'),
@@ -13,4 +14,5 @@ urlpatterns = [
     path('api/get-location',get_location),  
     path('api/add-hit',add_hit),  
     path('api/get-user-level',get_user_level),  
+    path('api/get-store-product',get_store_product),
 ]
