@@ -7,20 +7,23 @@ from rest_framework import status
 import requests
 from django.views.decorators.csrf import csrf_exempt
 import secrets
+import json
+
 @api_view(['POST'])
 def add_product(request):
     try:
-        store_id = request.query_params.get('store_id')
+        store_id = request.data.get('store_id')
         print("request.data:",request.data)
-        for i in request.data:    
-            data = i 
-            i['store'] = store_id
-            serializers_data = ProductSerializer(data=i,many=True)
-            if serializers_data.is_valid():
-                serializers_data.save()
-                return JsonResponse({"data":serializers_data.data},status=status.HTTP_200_OK)
-            else:
-                return JsonResponse({"error":serializers_data.errors})
+        prod_list = json.loads(request.data.get('products'))
+        for i in prod_list:
+            try:
+                prod = ProductDetail.objects.get(name=i[0],store_id=store_id)
+            except:
+                prod = None
+            if not prod:
+                ProductDetail.objects.create(store_id=store_id,name=i[0],description=i[1],price=i[0],image_url=i[2]);
+        return JsonResponse({"message":"successful"},status=status.HTTP_200_OK)
+            
     except Exception as e:
         # message = serializers.errors 
         print("error",e)
