@@ -10,7 +10,7 @@ class ProductDetail(models.Model):
     description = models.TextField(max_length=400,null=True,blank=True)
     price = models.CharField(max_length=100,null=True,blank=True)
     # category = models.CharField(max_length=100,null=True,blank=True)
-        
+    threshold = models.IntegerField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now=True) 
     updated_at = models.DateTimeField(auto_now_add=True)
 

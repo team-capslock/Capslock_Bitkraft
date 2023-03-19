@@ -98,7 +98,6 @@ def add_hit(request):
         return JsonResponse({"message":"dd"},status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @api_view(['POST'])
 def get_user_level(request):
     try:
@@ -133,3 +132,5 @@ def create_api_key(request):
     return secret_key
 
 
+# @api_view(['GET'])
+# def get_threshold_count(request):
