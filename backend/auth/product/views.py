@@ -29,7 +29,6 @@ def add_product(request):
         print("error",e)
         return JsonResponse({"message":"dd"},status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['GET'])
 def get_product(request):
     queryset = ProductDetail.objects.all()
